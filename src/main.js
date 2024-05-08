@@ -5,8 +5,9 @@
 // Gallery Shooter
 //
 // 
-// Art assets from Kenny Assets "Shape Characters" set:
-// https://kenney.nl/assets/shape-characters
+// Art assets from Kenny Assets "Shooting Gallery" and "Animal Pack Redux" set:
+// https://kenney.nl/assets/shooting-gallery
+// https://kenney.nl/assets/animal-pack-redux 
 //
 
 // debug with extreme prejudice
@@ -19,10 +20,10 @@ let config = {
     render: {
         pixelArt: true  // prevent pixel art from getting blurred when scaled
     },
-    width: 800,
+    width: 1200,
     height: 600,
-    fps: { forceSetTimeOut: true, target: 30 },
-    scene: [Movement]
+    fps: { forceSetTimeOut: true, target: 60 },
+    scene: [Gallery]
     
 }
 
