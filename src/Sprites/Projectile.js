@@ -1,4 +1,4 @@
-class Bullet extends Phaser.GameObjects.Sprite {
+class Projectile extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, texture, frame) {        
         super(scene, x, y, texture, frame);
         this.visible = false;
@@ -9,7 +9,7 @@ class Bullet extends Phaser.GameObjects.Sprite {
     update() {
         if (this.active) {
             this.x += this.speed;
-            if (this.x > (this.displayWidth)) {
+            if (this.x > 1600) {
                 this.makeInactive();
             }
         }
