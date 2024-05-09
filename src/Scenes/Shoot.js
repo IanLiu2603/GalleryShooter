@@ -19,6 +19,8 @@ class Gallery extends Phaser.Scene{
         this.walrusSpeed = 10;
 
         this.myScore = 0;
+        this.walrusTimer = 180;
+        this.penguinTimer = 120;
         
     }
 
@@ -32,6 +34,7 @@ class Gallery extends Phaser.Scene{
 
         this.load.image("gallery_shooter_tile", "tilemap_packed.png"); 
         this.load.tilemapTiledJSON("map", "GalleryShooter.json"); 
+        this.load.audio("impact", "impactPlate_heavy_002.ogg");
     }
     create(){
         let my = this.my;
@@ -141,7 +144,7 @@ class Gallery extends Phaser.Scene{
         my.sprite.player.update();
 
         //Penguin Spawner
-        if (this.timer % 120 == 0) {
+        if (this.timer % this.penguinTimer == 0) {
             if(my.sprite.penguins.length < this.penguinMax){
                 //console.log("spawn");
                 this.penguin = this.add.follower(this.curve, 10, 10, "penguin");
@@ -168,7 +171,7 @@ class Gallery extends Phaser.Scene{
         }
 
         //Walrus Spawner
-        if(this.timer % 180 == 0){
+        if(this.timer % this.walrusTimer == 0){
             let walrus = my.sprite.walrusGroup.getFirstDead();
                 if (walrus != null) {
                     walrus.makeActive();
@@ -188,6 +191,9 @@ class Gallery extends Phaser.Scene{
             //console.log(my.sprite.penguins.length);
             for(let penguin of my.sprite.penguins){
                 if(this.collides(penguin,bullet)&&bullet.active){
+                    this.sound.play("impact", {
+                        volume: 1 
+                    });
                     bullet.x = 1700;
                     penguin.visible= false;
                     this.myScore += 10;
@@ -197,6 +203,9 @@ class Gallery extends Phaser.Scene{
             }
             for(let walrus of walrusArray){
                 if(this.collides(walrus,bullet)&&bullet.active){
+                    this.sound.play("impact", {
+                        volume: 1 
+                    });
                     bullet.x = 1700;
                     walrus.health -=1;
                     if(walrus.health <= 0){
