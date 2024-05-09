@@ -22,6 +22,7 @@ class Gallery extends Phaser.Scene{
         this.walrusTimer = 180;
         this.penguinTimer = 120;
         
+        this.hp = 19;
     }
 
     preload(){
@@ -50,6 +51,7 @@ class Gallery extends Phaser.Scene{
 
         this.wKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.sKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+        this.rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         my.sprite.player = new Player(this, game.config.width/10, game.config.height - 40, "player", null, this.wKey, this.sKey, 20);
@@ -101,7 +103,10 @@ class Gallery extends Phaser.Scene{
         ];
         this.curve = new Phaser.Curves.Spline(this.points);
 
-        my.text.score = this.add.bitmapText(580, 0, "rocketSquare", "Score " + this.myScore);
+        my.text.score = this.add.bitmapText(800, 0, "rocketSquare", "Score " + this.myScore);
+        my.text.hp = this.add.bitmapText(50, 0, "rocketSquare", "Lives " + this.hp);
+        my.text.gameOver = this.add.bitmapText(600, 300, "rocketSquare", "Game Over");
+        my.text.gameOver.visible = false;
 
         my.sprite.walrusGroup = this.add.group({
             active: true,
@@ -120,7 +125,7 @@ class Gallery extends Phaser.Scene{
         my.sprite.walrusGroup.propertyValueSet("speed", this.walrusSpeed);
 
         
-
+        document.getElementById('description').innerHTML = '<br>W: Up // S: Down // Space: Shoot // R: Restart '
 
     }
     update(){
@@ -143,8 +148,16 @@ class Gallery extends Phaser.Scene{
         }
         my.sprite.player.update();
 
+        //Restart
+        if (this.rKey.isDown){
+            this.restart();
+            console.log("restart");
+            this.updateLives();
+            this.updateScore();
+        }
+
         //Penguin Spawner
-        if (this.timer % this.penguinTimer == 0) {
+        if (this.timer % this.penguinTimer == 0 && this.hp > 0) {
             if(my.sprite.penguins.length < this.penguinMax){
                 //console.log("spawn");
                 this.penguin = this.add.follower(this.curve, 10, 10, "penguin");
@@ -171,7 +184,7 @@ class Gallery extends Phaser.Scene{
         }
 
         //Walrus Spawner
-        if(this.timer % this.walrusTimer == 0){
+        if(this.timer % this.walrusTimer == 0 && this.hp > 0){
             let walrus = my.sprite.walrusGroup.getFirstDead();
                 if (walrus != null) {
                     walrus.makeActive();
@@ -216,13 +229,37 @@ class Gallery extends Phaser.Scene{
                 }
             }
         }
+
+
+        //Damage check
+        for(let walrus of walrusArray){
+            if(walrus.x < 50){
+                this.hp -=1;
+                this.updateLives();
+                walrus.x = 2000;
+                dedWal.push(walrus);
+            }
+        }
+        for(let penguin of my.sprite.penguins){
+            if(penguin.x < 50){
+                this.hp -=1;
+                this.updateLives();
+                penguin.visible= false;
+                dedPen.push(penguin);
+            }
+        }
+        
         for(let penguin of dedPen){
             my.sprite.penguins.splice(my.sprite.penguins.indexOf(penguin),1);
         }
         for(let walrus of dedWal){
             walrus.makeInactive();
         }
-        
+
+        if(this.hp <= 0){
+            this.gameOver();
+        }
+
         this.timer++;
     }
     collides(a, b) {
@@ -233,5 +270,21 @@ class Gallery extends Phaser.Scene{
     updateScore() {
         let my = this.my;
         my.text.score.setText("Score " + this.myScore);
+    }
+    updateLives() {
+        let my = this.my;
+        if(this.hp >= 0){
+            my.text.hp.setText("Lives " + this.hp);
+        }
+    }
+    gameOver(){
+        let my = this.my;
+        console.log("gameover")
+        my.text.gameOver.visible = true;
+    }
+    restart(){
+        this.myScore = 0;
+        this.hp = 10;
+        my.text.gameOver.visible = false;
     }
 }
