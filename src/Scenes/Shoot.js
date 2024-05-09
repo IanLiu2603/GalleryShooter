@@ -1,7 +1,7 @@
 class Gallery extends Phaser.Scene{
     constructor(){
         super("shootScene");
-        this.my = {sprite: {}};
+        this.my = {sprite: {}, text: {}};
 
         this.playerSpeed = 20;
         this.bulletSpeed = 20
@@ -14,6 +14,11 @@ class Gallery extends Phaser.Scene{
         this.penguinMax = 10;
         this.timer = 0;
         this.my.sprite.penguins = [];
+
+        this.walrusMax = 5;
+        this.walrusSpeed = 10;
+
+        this.myScore = 0;
         
     }
 
@@ -23,6 +28,7 @@ class Gallery extends Phaser.Scene{
         this.load.image("projectile", "duck_yellow.png");
         this.load.image("penguin", "penguin.png");
         this.load.image("walrus", "walrus.png");
+        this.load.bitmapFont("rocketSquare", "KennyRocketSquare_0.png", "KennyRocketSquare.fnt");
     }
     create(){
         let my = this.my;
@@ -79,6 +85,25 @@ class Gallery extends Phaser.Scene{
             7, 553,
         ];
         this.curve = new Phaser.Curves.Spline(this.points);
+
+        my.text.score = this.add.bitmapText(580, 0, "rocketSquare", "Score " + this.myScore);
+
+        my.sprite.walrusGroup = this.add.group({
+            active: true,
+            defaultKey: "walrus",
+            maxSize: 10,
+            runChildUpdate: true
+            }
+        )
+        my.sprite.walrusGroup.createMultiple({
+            classType: Walrus,
+            active: false,
+            visible: false,
+            key: my.sprite.walrusGroup.defaultKey,
+            repeat: my.sprite.walrusGroup.maxSize-1
+        });
+        my.sprite.walrusGroup.propertyValueSet("speed", this.walrusSpeed);
+
     }
     update(){
         let my = this.my;
@@ -101,10 +126,9 @@ class Gallery extends Phaser.Scene{
         my.sprite.player.update();
 
         //Penguin Spawner
-        if (this.timer == 120) {
-            this.timer = 0
+        if (this.timer % 120 == 0) {
             if(my.sprite.penguins.length < this.penguinMax){
-                console.log("spawn");
+                //console.log("spawn");
                 this.penguin = this.add.follower(this.curve, 10, 10, "penguin");
                 this.penguin.setScale(0.5);
                 this.penguin.x = 1192;
@@ -128,6 +152,18 @@ class Gallery extends Phaser.Scene{
             }
         }
 
+        //Walrus Spawner
+        if(this.timer % 180 == 0){
+            let walrus = my.sprite.walrusGroup.getFirstDead();
+                if (walrus != null) {
+                    walrus.makeActive();
+                    walrus.x = 1600;
+                    walrus.y = Math.floor(Math.random() * (800 - 100 + 1)) + 100;
+                    console.log("walrus")
+                    walrus.setScale(0.75);
+                }
+        }
+
         let bulletArray = my.sprite.bulletGroup.getChildren();
         let dedPen = [];
         //Collision checker
@@ -137,6 +173,8 @@ class Gallery extends Phaser.Scene{
                 if(this.collides(penguin,bullet)&&bullet.active){
                     bullet.x = 1700;
                     penguin.visible= false;
+                    this.myScore += 10;
+                    this.updateScore();
                     dedPen.push(penguin);
                 }
             }
@@ -151,5 +189,9 @@ class Gallery extends Phaser.Scene{
         if (Math.abs(a.x - b.x) > (a.displayWidth/2 + b.displayWidth/2)) return false;
         if (Math.abs(a.y - b.y) > (a.displayHeight/2 + b.displayHeight/2)) return false;
         return true;
+    }
+    updateScore() {
+        let my = this.my;
+        my.text.score.setText("Score " + this.myScore);
     }
 }
