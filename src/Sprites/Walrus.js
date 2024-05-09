@@ -3,14 +3,14 @@ class Walrus extends Phaser.GameObjects.Sprite {
         super(scene, x, y, texture, frame);
         this.visible = false;
         this.active = false;
-        this.health = 3;
+        this.health = 2;
         return this;
     }
 
     update() {
         if (this.active) {
             this.x -= this.speed;
-            if (this.x <= 0) {
+            if (this.x <= 0 || this.x >= 1800) {
                 this.makeInactive();
             }
         }

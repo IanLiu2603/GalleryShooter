@@ -8,7 +8,7 @@ class Gallery extends Phaser.Scene{
         this.startx = 100;
         this.starty = 350;
 
-        this.bulletCooldown = 30;        // Number of update() calls to wait before making a new bullet
+        this.bulletCooldown = 10;        // Number of update() calls to wait before making a new bullet
         this.bulletCooldownCounter = 0;
 
         this.penguinMax = 10;
@@ -158,18 +158,20 @@ class Gallery extends Phaser.Scene{
                 if (walrus != null) {
                     walrus.makeActive();
                     walrus.x = 1600;
-                    walrus.y = Math.floor(Math.random() * (800 - 100 + 1)) + 100;
-                    console.log("walrus")
+                    walrus.health = 2;
+                    walrus.y = Math.floor(Math.random() * (550 - 50 + 1)) + 50;
                     walrus.setScale(0.75);
                 }
         }
 
         let bulletArray = my.sprite.bulletGroup.getChildren();
+        let walrusArray = my.sprite.walrusGroup.getChildren();
         let dedPen = [];
+        let dedWal = [];
         //Collision checker
-        for(let penguin of my.sprite.penguins){
+        for(let bullet of bulletArray){
             //console.log(my.sprite.penguins.length);
-            for(let bullet of bulletArray){
+            for(let penguin of my.sprite.penguins){
                 if(this.collides(penguin,bullet)&&bullet.active){
                     bullet.x = 1700;
                     penguin.visible= false;
@@ -178,9 +180,23 @@ class Gallery extends Phaser.Scene{
                     dedPen.push(penguin);
                 }
             }
+            for(let walrus of walrusArray){
+                if(this.collides(walrus,bullet)&&bullet.active){
+                    bullet.x = 1700;
+                    walrus.health -=1;
+                    if(walrus.health <= 0){
+                        this.myScore += 30;
+                        walrus.x = 2000;
+                    }
+                    this.updateScore();
+                }
+            }
         }
         for(let penguin of dedPen){
             my.sprite.penguins.splice(my.sprite.penguins.indexOf(penguin),1);
+        }
+        for(let walrus of dedWal){
+            walrus.makeInactive();
         }
         
         this.timer++;
