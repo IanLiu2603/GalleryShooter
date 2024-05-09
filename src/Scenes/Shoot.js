@@ -29,9 +29,21 @@ class Gallery extends Phaser.Scene{
         this.load.image("penguin", "penguin.png");
         this.load.image("walrus", "walrus.png");
         this.load.bitmapFont("rocketSquare", "KennyRocketSquare_0.png", "KennyRocketSquare.fnt");
+
+        this.load.image("gallery_shooter_tile", "tilemap_packed.png"); 
+        this.load.tilemapTiledJSON("map", "GalleryShooter.json"); 
     }
     create(){
         let my = this.my;
+        //Map render
+        this.map = this.add.tilemap("map", 16, 16, 10, 10);
+        this.tileset = this.map.addTilesetImage("tilemap_packed", "gallery_shooter_tile");
+        this.grassLayer = this.map.createLayer("Grass", this.tileset, 0, 0);
+        this.waterLayer = this.map.createLayer("Water", this.tileset, 0, 0);
+        this.treeLayer = this.map.createLayer("Trees", this.tileset, 0, 0);
+        this.grassLayer.setScale(5.0);
+        this.treeLayer.setScale(5.0);
+        this.waterLayer.setScale(5.0);
 
         this.wKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.sKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -104,6 +116,9 @@ class Gallery extends Phaser.Scene{
         });
         my.sprite.walrusGroup.propertyValueSet("speed", this.walrusSpeed);
 
+        
+
+
     }
     update(){
         let my = this.my;
@@ -159,7 +174,7 @@ class Gallery extends Phaser.Scene{
                     walrus.makeActive();
                     walrus.x = 1600;
                     walrus.health = 2;
-                    walrus.y = Math.floor(Math.random() * (550 - 50 + 1)) + 50;
+                    walrus.y = Math.floor(Math.random() * (590 - 50 + 1)) + 50;
                     walrus.setScale(0.75);
                 }
         }

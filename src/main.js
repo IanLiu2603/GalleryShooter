@@ -21,7 +21,7 @@ let config = {
         pixelArt: true  // prevent pixel art from getting blurred when scaled
     },
     width: 1200,
-    height: 600,
+    height: 640,
     fps: { forceSetTimeOut: true, target: 60 },
     scene: [Gallery]
     
