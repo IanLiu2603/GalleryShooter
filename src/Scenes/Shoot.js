@@ -8,9 +8,12 @@ class Gallery extends Phaser.Scene{
         this.startx = 100;
         this.starty = 350;
 
-        this.bulletCooldown = 3;        // Number of update() calls to wait before making a new bullet
+        this.bulletCooldown = 30;        // Number of update() calls to wait before making a new bullet
         this.bulletCooldownCounter = 0;
-        
+
+        this.penguinMax = 10;
+        this.timer = 0;
+        this.my.sprite.penguins = [];
         
     }
 
@@ -48,6 +51,34 @@ class Gallery extends Phaser.Scene{
         });
         my.sprite.bulletGroup.propertyValueSet("speed", this.bulletSpeed);
 
+        this.points = [
+            1192, 290,
+            
+            1099, 12,
+            
+            987, 582,
+            
+            815, 31,
+            
+            719, 573,
+            
+            594, 54,
+            
+            502, 548,
+            
+            392, 64,
+            
+            290, 557,
+            
+            208, 45,
+            
+            148, 555,
+            
+            74, 55,
+            
+            7, 553,
+        ];
+        this.curve = new Phaser.Curves.Spline(this.points);
     }
     update(){
         let my = this.my;
@@ -57,9 +88,7 @@ class Gallery extends Phaser.Scene{
         // Check for bullet being fired
         if (this.spaceKey.isDown) {
             if (this.bulletCooldownCounter < 0) {
-                // Get the first inactive bullet, and make it active
                 let bullet = my.sprite.bulletGroup.getFirstDead();
-                // bullet will be null if there are no inactive (available) bullets
                 if (bullet != null) {
                     this.bulletCooldownCounter = this.bulletCooldown;
                     bullet.makeActive();
@@ -70,5 +99,57 @@ class Gallery extends Phaser.Scene{
             }
         }
         my.sprite.player.update();
+
+        //Penguin Spawner
+        if (this.timer == 120) {
+            this.timer = 0
+            if(my.sprite.penguins.length < this.penguinMax){
+                console.log("spawn");
+                this.penguin = this.add.follower(this.curve, 10, 10, "penguin");
+                this.penguin.setScale(0.5);
+                this.penguin.x = 1192;
+                this.penguin.y = 290;
+                this.penguin.visible = true;
+                this.penguin.startFollow({
+                    from: 0,
+                    to: 1,
+                    delay: 0,
+                    duration: 6000,
+                    ease: 'Sine.easeInOut',
+                    repeat: -1,
+                    yoyo: false,
+                    rotateToPath: true,
+                    rotationOffset: -90
+                });  
+                my.sprite.penguins.push(this.penguin);
+            }
+            else{
+                console.log("nospawn");
+            }
+        }
+
+        let bulletArray = my.sprite.bulletGroup.getChildren();
+        let dedPen = [];
+        //Collision checker
+        for(let penguin of my.sprite.penguins){
+            //console.log(my.sprite.penguins.length);
+            for(let bullet of bulletArray){
+                if(this.collides(penguin,bullet)&&bullet.active){
+                    bullet.x = 1700;
+                    penguin.visible= false;
+                    dedPen.push(penguin);
+                }
+            }
+        }
+        for(let penguin of dedPen){
+            my.sprite.penguins.splice(my.sprite.penguins.indexOf(penguin),1);
+        }
+        
+        this.timer++;
+    }
+    collides(a, b) {
+        if (Math.abs(a.x - b.x) > (a.displayWidth/2 + b.displayWidth/2)) return false;
+        if (Math.abs(a.y - b.y) > (a.displayHeight/2 + b.displayHeight/2)) return false;
+        return true;
     }
 }
